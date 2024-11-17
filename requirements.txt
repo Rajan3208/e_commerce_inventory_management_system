@@ -1,6 +1,6 @@
-streamlit==1.26.0
-pandas==2.1.2
-plotly==5.16.1
-numpy==1.26.0
-joblib==1.4.1
+streamlit
+pandas
+plotly
+numpy
+joblib
 
