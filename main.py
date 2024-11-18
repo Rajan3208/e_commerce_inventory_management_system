@@ -242,7 +242,7 @@ def generate_fashion_data(n_samples=365):  # Changed to 365 for 1 year of daily 
     return df
 
 # Main app
-st.title("🛍️ Fashion Analytics Dashboard")
+st.title("🛍️ Inventory Management Dashboard for E-commerce(Only for 6 products)")
 
 try:
     # Load ML components
