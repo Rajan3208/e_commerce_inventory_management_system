@@ -12,7 +12,7 @@ import joblib
 st.markdown("""
     <style>
     .stTitle {
-        font-size: 41px !important;
+        font-size: 43px !important;
         text-align: center;
         padding-bottom: 20px;
     }
