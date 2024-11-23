@@ -1,5 +1,5 @@
 import streamlit as st
-st.set_page_config(layout="wide", page_title="Inventory Management Dashboard for E-commerce")
+st.set_page_config(layout="wide", page_title="Fashion Analytics Dashboard")
 
 import pandas as pd
 import plotly.express as px
@@ -8,11 +8,13 @@ import numpy as np
 from datetime import datetime, timedelta
 import joblib
 
+pd.read_csv('fashion_data.csv')
+
 # Custom CSS
 st.markdown("""
     <style>
     .stTitle {
-        font-size: 43px !important;
+        font-size: 42px !important;
         text-align: center;
         padding-bottom: 20px;
     }
@@ -241,8 +243,7 @@ def generate_fashion_data(n_samples=365):  # Changed to 365 for 1 year of daily 
     
     return df
 
-# Main app
-st.title("🛍️ Inventory Management Dashboard for E-commerce(Only for 6 products)")
+st.title("🛍️ Fashion Analytics Dashboard")
 
 try:
     # Load ML components
@@ -286,32 +287,90 @@ try:
             
             # Product Performance
             st.markdown("### 👕 Product Category Analysis")
-            product_fig = go.Figure()
-            product_fig.add_trace(go.Bar(
-                x=analysis_results['product_performance'].index,
-                y=analysis_results['product_performance'][('sales_volume', 'sum')],
-                name='Total Sales'
-            ))
-            product_fig.add_trace(go.Scatter(
-                x=analysis_results['product_performance'].index,
-                y=analysis_results['product_performance'][('review_score', 'mean')],
-                name='Avg Review Score',
-                yaxis='y2'
-            ))
-            product_fig.update_layout(
-                title='Product Performance Overview',
-                yaxis2=dict(
-                    title='Average Review Score',
-                    overlaying='y',
-                    side='right'
-                ),
-                height=400
-            )
-            st.plotly_chart(product_fig, use_container_width=True)
             
+            # Convert date column to datetime
+            df['date'] = pd.to_datetime(df['date'])
+
+            # Calculate monthly sales
+            monthly_sales = df.groupby(df['date'].dt.strftime('%Y-%m'))[['sales_volume']].sum().reset_index()
+            monthly_sales['date'] = pd.to_datetime(monthly_sales['date'])
+
+            # Get the last 6 months of actual data
+            last_date = monthly_sales['date'].max()
+            six_months_ago = last_date - pd.DateOffset(months=5)
+            actual_data = monthly_sales[monthly_sales['date'] >= six_months_ago]
+
+            # Create projected data (using a simple trend projection)
+            last_value = actual_data['sales_volume'].iloc[-1]
+            growth_rate = 0.05  # 5% monthly growth
+            projected_dates = pd.date_range(start=last_date + pd.DateOffset(months=1), 
+                                            periods=6, 
+                                            freq='M')
+            projected_values = [last_value * (1 + growth_rate) ** i for i in range(1, 7)]
+
+            # Create the figure
+            fig = go.Figure()
+
+            # Add actual sales line
+            fig.add_trace(go.Scatter(
+                x=actual_data['date'],
+                y=actual_data['sales_volume'],
+                name='Actual Sales',
+                line=dict(color='rgb(147, 147, 255)', width=2),
+                mode='lines+markers',
+                marker=dict(size=8, symbol='circle-open')
+            ))
+
+            # Add projected trend line
+            fig.add_trace(go.Scatter(
+                x=projected_dates,
+                y=projected_values,
+                name='Projected Trend',
+                line=dict(color='rgb(144, 238, 144)', width=2, dash='dash'),
+                mode='lines+markers',
+                marker=dict(size=8, symbol='circle-open')
+            ))
+
+            # Update layout to match the image style
+            fig.update_layout(
+                title='Sales Volume Forecast - Next 6 Months',
+                title_x=0.05,  # Left-align title
+                title_y=0.95,
+                plot_bgcolor='white',
+                showlegend=True,
+                legend=dict(
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="center",
+                    x=0.5,
+                    orientation="h"
+                ),
+                xaxis=dict(
+                    title='Month',
+                    showgrid=True,
+                    gridcolor='rgb(230, 230, 230)',
+                    tickformat='%b',
+                    dtick='M1',
+                    tickangle=0
+                ),
+                yaxis=dict(
+                    title='Sales Volume',
+                    showgrid=True,
+                    gridcolor='rgb(230, 230, 230)',
+                    rangemode='tozero',
+                    dtick=150000
+                ),
+                width=800,
+                height=500,
+                margin=dict(l=60, r=30, t=50, b=50)
+            )
+
+            # If using Streamlit
+            st.plotly_chart(fig, use_container_width=True)
+
             # Market Insights
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 st.markdown("### 🌍 Geographic Insights")
                 city_fig = px.bar(
@@ -334,7 +393,7 @@ try:
                 gender_fig.update_layout(height=400)
                 st.plotly_chart(gender_fig, use_container_width=True)
             
-            # Seasonal and Price Analysis
+            # # Seasonal and Price Analysis
             st.markdown("### 🌤️ Seasonal & Pricing Insights")
             season_price_cols = st.columns(2)
             
@@ -426,7 +485,7 @@ try:
                 file_name="fashion_retail_analysis.md",
                 mime="text/markdown"
             )
-
+    
     with tab2:
         # Product Analysis Section
         st.markdown("## 🏷️ Product-Specific Analysis")
