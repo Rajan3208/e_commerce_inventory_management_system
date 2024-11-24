@@ -482,7 +482,7 @@ try:
             st.download_button(
                 label="📥 Download Overall Analysis Report",
                 data=overall_analysis_text,
-                file_name="fashion_retail_analysis.md",
+                file_name="fashion_retail_analysis.txt",
                 mime="text/markdown"
             )
     
@@ -617,7 +617,7 @@ try:
             st.download_button(
                 label=f"📥 Download {selected_product} Analysis Report",
                 data=product_analysis_text,
-                file_name=f"{selected_product.lower()}_analysis.md",
+                file_name=f"{selected_product.lower()}_analysis.txt",
                 mime="text/markdown"
             )
 
