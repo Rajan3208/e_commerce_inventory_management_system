@@ -19,7 +19,7 @@ st.markdown("""
         padding-bottom: 20px;
     }
     .product-chart {
-        margin-bottom: 20px;
+        margin-bottom: 21px;
     }
     </style>
 """, unsafe_allow_html=True)
