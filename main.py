@@ -14,7 +14,7 @@ pd.read_csv('fashion_data.csv')
 st.markdown("""
     <style>
     .stTitle {
-        font-size: 41px !important;
+        font-size: 42px !important;
         text-align: center;
         padding-bottom: 20px;
     }
